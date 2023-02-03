@@ -1,0 +1,41 @@
+inputs:
+  - name: global
+    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: ON641975_1
+    metadata: dmsa-pipeline/ON641975_1_meta.tsv
+    sequences: dmsa-pipeline/ON641975_1.fasta
+
+# GenBank data includes "Wuhan-Hu-1/2019" which we use as the root for this build.
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+# TODO not sure what the best practice to identify / organize file paths is here ...
+# TODO Should probably provide a separate conda env? rather than mucking up theirs ...
+polyclonal_antibody_models:
+  CC67.105:
+    wt_seq: "ON641975.1" # must esist in the input sequences. all aamuts in prediction are relative to this
+    activity_wt_df: "dmsa-pipeline/pc_escape_models/CC67.105/activity_wt_df.csv"
+    mut_escape_df: "dmsa-pipeline/pc_escape_models/CC67.105/mut_escape_df.csv"
+    concentrations: "210.0,10.0" # must be a tab-delim list .. TODO is this the best way?
+  CC9.104:
+    wt_seq: "ON641975.1"
+    activity_wt_df: "dmsa-pipeline/pc_escape_models/CC9.104/activity_wt_df.csv"
+    mut_escape_df: "dmsa-pipeline/pc_escape_models/CC9.104/mut_escape_df.csv"
+    concentrations: "272.0"
+  LyCoV-1404:
+    wt_seq: "ON641975.1"
+    activity_wt_df: "dmsa-pipeline/pc_escape_models/LyCoV-1404/activity_wt_df.csv"
+    mut_escape_df: "dmsa-pipeline/pc_escape_models/LyCoV-1404/mut_escape_df.csv"
+    concentrations: "2.6"
+  NTD_5-7:
+    wt_seq: "ON641975.1"
+    activity_wt_df: "dmsa-pipeline/pc_escape_models/NTD_5-7/activity_wt_df.csv"
+    mut_escape_df: "dmsa-pipeline/pc_escape_models/NTD_5-7/mut_escape_df.csv"
+    concentrations: "150.0"
+
+builds:
+  global-ncov-dmsa:
+    title: "Build with custom data and example data"
+    # TODO: link to configuration guide
+    subsampling_scheme: all

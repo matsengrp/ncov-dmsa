@@ -1223,6 +1223,34 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
+rule polyclonal_escape_prediction:
+    input:
+        alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
+    output:
+        node_data = "results/{build_name}/{antibody}/escape_pred.json"
+    log:
+        "logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
+    params:
+        dms_wt_seq = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["wt_seq"],
+        activity_wt_df = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["activity_wt_df"],
+        mut_escape_df = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["mut_escape_df"],
+        concentrations = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["concentrations"]
+    conda:
+        config["conda_environment"],
+    resources:
+        mem_mb=2000
+    shell:
+        """
+        python3 scripts/polyclonal_predict.py \
+            --alignment {input.alignments} \
+            --mut-escape-df {params.mut_escape_df} \
+            --activity-wt-df {params.activity_wt_df} \
+            --dms-wt-seq {params.dms_wt_seq} \
+            --antibody {wildcards.antibody} \
+            --concentrations-list {params.concentrations} \
+            --output {output.node_data} 2>&1 | tee {log}
+        """
+
 rule mutational_fitness:
     input:
         tree = "results/{build_name}/tree.nwk",
@@ -1373,6 +1401,14 @@ def _get_node_data_by_wildcards(wildcards):
 
     # Convert input files from wildcard strings to real file names.
     inputs = [input_file.format(**wildcards_dict) for input_file in inputs]
+
+    
+    if "polyclonal_antibody_models" in config:
+        inputs += list(expand(
+            rules.polyclonal_escape_prediction.output.node_data, 
+            build_name=list(config["builds"].keys()),
+            antibody=list(config["polyclonal_antibody_models"])
+        ))
 
     return inputs
 
