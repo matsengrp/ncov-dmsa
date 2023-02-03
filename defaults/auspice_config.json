@@ -6,6 +6,11 @@
   ],
   "colorings": [
     {
+      "key": "dms_model_prediction",
+      "title": "LyCoV-1404 Escape",
+      "type": "continuous"
+    },
+    {
       "key": "emerging_lineage",
       "title": "Emerging Lineage",
       "type": "categorical"

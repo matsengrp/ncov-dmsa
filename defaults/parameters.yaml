@@ -69,6 +69,10 @@ files:
   mutational_fitness_distance_map: "defaults/mutational_fitness_distance_map.json"
   sites_to_mask: "defaults/sites_ignored_for_tree_topology.txt"
   rbd_level_definitions: "defaults/rbd_levels.yaml"
+  mut_escape_df: "dmsa-pipeline/LyCoV-1404/mut_escape_df.csv"
+  activity_wt_df: "dmsa-pipeline/LyCoV-1404/activity_wt_df.csv"
+
+dms_wt_seq: "ON641975.1" 
 
 # Define genes to translate during alignment by nextalign.
 genes: ["ORF1a", "ORF1b", "S", "ORF3a", "E", "M", "ORF6", "ORF7a", "ORF7b", "ORF8", "N", "ORF9b"]
