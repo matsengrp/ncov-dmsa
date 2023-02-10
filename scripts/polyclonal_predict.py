@@ -44,14 +44,21 @@ if __name__ == "__main__":
     parser.add_argument("--mut-escape-df", required=True, help="polyclonal mutational effects dataframe")
     parser.add_argument("--activity-wt-df", required=True, help="wildtype activity dataframe")
     parser.add_argument("--dms-wt-seq", required=True, help="The experimental wildtype used in the dms. This must exist in the id's of the provided fasta alignment")
-    parser.add_argument("--dms-wt-seq", required=True, help="Name of the antibody used to test escape")
+    parser.add_argument("--antibody", required=True, help="Name of the antibody used to test escape")
     parser.add_argument("--output", required=True, help="The experimental wildtype used in the dms. This must exist in the id's of the provided fasta alignment")
     args = parser.parse_args()
+
+    mut_escape_df = pd.read_csv(args.mut_escape_df)
+    sites_to_ignore = ['214a', '214b', '214c']
+    mut_escape_df = mut_escape_df[
+        ~mut_escape_df['site'].isin(sites_to_ignore)
+    ]
+    mut_escape_df['escape'] = mut_escape_df['escape_median']
 
     # Instantiate a Polyclonal object with betas and wildtype activity.
     model = polyclonal.Polyclonal(
         activity_wt_df=pd.read_csv(args.activity_wt_df),
-        mut_escape_df=pd.read_csv(args.mut_escape_df),
+        mut_escape_df=mut_escape_df,
         data_to_fit=None,
         alphabet=polyclonal.alphabets.AAS_WITHSTOP_WITHGAP
     )

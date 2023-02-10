@@ -1241,8 +1241,8 @@ rule polyclonal_escape_prediction:
         #node_data = "results/{build_name}/polyclonal_escape_pred.json"
     #benchmark:
     #    "benchmarks/polyclonal_escape_prediction_{build_name}.txt"
-    #log:
-        #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
+    log:
+        "logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
         #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
     params:
         genes = ' '.join(config.get('genes', ['S'])),

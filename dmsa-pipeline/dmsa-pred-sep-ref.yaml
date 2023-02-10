@@ -13,8 +13,8 @@ inputs:
 refine:
   root: "Wuhan-Hu-1/2019"
 
-# pc_escape_dir: "dmsa-pipeline/pc_escape_models"
-# pc_escape_models: ["CC67.105", "CC9.104", "LyCoV-1404", "NTD_5-7"]
+pc_escape_dir: "dmsa-pipeline/pc_escape_models"
+pc_escape_models: ["CC67.105", "CC9.104", "LyCoV-1404", "NTD_5-7"]
 
 builds:
   test-reference:
