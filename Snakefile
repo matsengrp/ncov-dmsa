@@ -135,7 +135,8 @@ wildcard_constraints:
     # but not special strings used for Nextstrain builds.
     build_name = r'(?:[-a-zA-Z0-9_](?!tip-frequencies|root-sequence))+',
     date = r"\d{4}-\d{2}-\d{2}",
-    origin = r"[-a-zA-Z0-9_]+"
+    origin = r"[-a-zA-Z0-9_]+" #,
+    # antibody = r"[-a-zA-Z0-9_]+"
 
 localrules: clean
 

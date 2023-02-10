@@ -1223,26 +1223,32 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
-rule dms_model_prediction:
+rule polyclonal_escape_prediction:
     input:
         # tree = "results/{build_name}/tree.nwk",
         # alignments = lambda w: rules.translate.output.translations,
         alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
-        # distance_map = config["files"]["dms_model_prediction_distance_map"]
-        mut_escape_df = config["files"]["mut_escape_df"],
-        activity_wt_df = config["files"]["activity_wt_df"],
+        # distance_map = config["files"]["polyclonal_escape_prediction_distance_map"]
+        # mut_escape_df = config["files"]["mut_escape_df"],
+        # activity_wt_df = config["files"]["activity_wt_df"],
+        #activity_wt_df = "{pc_escape_dir}/{{antibody}}/activity_wt_df.csv".format(pc_escape_dir=config["pc_escape_dir"]),
+        #mut_escape_df = "{pc_escape_dir}/{{antibody}}/mut_escape_df.csv".format(pc_escape_dir=config["pc_escape_dir"]) 
+        activity_wt_df =  "dmsa-pipeline/pc_escape_models/{antibody}/activity_wt_df.csv",
+        mut_escape_df =  "dmsa-pipeline/pc_escape_models/{antibody}/mut_escape_df.csv"
         #dms_wt_seq = config["dms_wt_seq"]
     output:
-        node_data = "results/{build_name}/dms_model_prediction.json"
+        node_data = "results/{build_name}/{antibody}/escape_pred.json"
+        #node_data = "results/{build_name}/polyclonal_escape_pred.json"
     #benchmark:
-    #    "benchmarks/dms_model_prediction_{build_name}.txt"
-    log:
-        "logs/dms_model_prediction_{build_name}.txt"
+    #    "benchmarks/polyclonal_escape_prediction_{build_name}.txt"
+    #log:
+        #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
+        #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
     params:
         genes = ' '.join(config.get('genes', ['S'])),
         dms_wt_seq = config.get('dms_wt_seq'),
         compare_to = "root",
-        attribute_name = "dms_model_prediction"
+        attribute_name = "polyclonal_escape_prediction"
     conda:
         config["conda_environment"],
     resources:
@@ -1254,6 +1260,7 @@ rule dms_model_prediction:
             --mut-escape-df {input.mut_escape_df} \
             --activity-wt-df {input.activity_wt_df} \
             --dms-wt-seq {params.dms_wt_seq} \
+            --antibody {wildcards.antibody} \
             --output {output.node_data} 2>&1 | tee {log}
         """
 
@@ -1397,7 +1404,6 @@ def _get_node_data_by_wildcards(wildcards):
         rules.traits.output.node_data,
         rules.logistic_growth.output.node_data,
         rules.mutational_fitness.output.node_data,
-        rules.dms_model_prediction.output.node_data,
         rules.distances.output.node_data,
         rules.calculate_epiweeks.output.node_data,
         rules.assign_rbd_levels.output.node_data,
@@ -1408,6 +1414,15 @@ def _get_node_data_by_wildcards(wildcards):
 
     # Convert input files from wildcard strings to real file names.
     inputs = [input_file.format(**wildcards_dict) for input_file in inputs]
+
+    if "pc_escape_models" in config:
+        inputs += list(expand(
+            rules.polyclonal_escape_prediction.output.node_data, 
+            build_name=list(config["builds"].keys()),
+            antibody=list(config["pc_escape_models"])
+        ))
+
+    print(inputs)
 
     return inputs
 

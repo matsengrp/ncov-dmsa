@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument("--mut-escape-df", required=True, help="polyclonal mutational effects dataframe")
     parser.add_argument("--activity-wt-df", required=True, help="wildtype activity dataframe")
     parser.add_argument("--dms-wt-seq", required=True, help="The experimental wildtype used in the dms. This must exist in the id's of the provided fasta alignment")
+    parser.add_argument("--dms-wt-seq", required=True, help="Name of the antibody used to test escape")
     parser.add_argument("--output", required=True, help="The experimental wildtype used in the dms. This must exist in the id's of the provided fasta alignment")
     args = parser.parse_args()
 
@@ -81,7 +82,7 @@ if __name__ == "__main__":
 
     ret_json = {"generated_by":{"program":"polyclonal"}, "nodes":{}}
     for idx, row in escape_probs.drop("seq", axis=1).reset_index().iterrows():
-        ret_json["nodes"][row.strain] = {"predicted_prob_escape" : row.predicted_prob_escape}
+        ret_json["nodes"][row.strain] = {f"prob_escape_{args.antibody}" : row.predicted_prob_escape}
 
     #j = json.dumps(ret_json, indent=4)
     #with open(args.output, 'w') as f:
