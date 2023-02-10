@@ -1,0 +1,26 @@
+inputs:
+  - name: reference
+    metadata: https://data.nextstrain.org/files/ncov/open/reference/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/reference/sequences.fasta.xz
+    # metadata: data/references_metadata.tsv
+    # sequences: data/references_sequences.fasta
+    # sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: dmsref
+    metadata: dmsa-pipeline/BA1-meta.tsv
+    sequences: dmsa-pipeline/BA1.fasta
+
+# GenBank data includes "Wuhan-Hu-1/2019" which we use as the root for this build.
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+# pc_escape_dir: "dmsa-pipeline/pc_escape_models"
+# pc_escape_models: ["CC67.105", "CC9.104", "LyCoV-1404", "NTD_5-7"]
+
+builds:
+  test-reference:
+    title: "Build with custom data and example data"
+    # TODO: link to configuration guide
+    subsampling_scheme: all
+    # Defines colorings for input data sources
+    # More at https://docs.nextstrain.org/projects/ncov/en/latest/analysis/customizing-visualization.html
+    # auspice_config: ncov-tutorial/auspice-config-custom-data.json
