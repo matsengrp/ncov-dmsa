@@ -2,11 +2,8 @@ inputs:
   - name: reference
     metadata: https://data.nextstrain.org/files/ncov/open/reference/metadata.tsv.xz
     sequences: https://data.nextstrain.org/files/ncov/open/reference/sequences.fasta.xz
-    # metadata: data/references_metadata.tsv
-    # sequences: data/references_sequences.fasta
-    # sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
   - name: dmsref
-    metadata: dmsa-pipeline/BA1-meta.tsv
+    metadata: dmsa-pipeline/BA1-meta-patch.tsv
     sequences: dmsa-pipeline/BA1.fasta
 
 # GenBank data includes "Wuhan-Hu-1/2019" which we use as the root for this build.

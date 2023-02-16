@@ -1,12 +1,12 @@
 inputs:
-  - name: global_seq_2
+  - name: global-2
     metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
     #aligned: https://data.nextstrain.org/files/ncov/open/global/aligned.fasta.xz
     sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
     # metadata: data/references_metadata.tsv
     # sequences: data/references_sequences.fasta
     # sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
-  - name: dmsref_seq_2
+  - name: dmsref-global-2
     metadata: dmsa-pipeline/BA1-meta-patch.tsv
     sequences: dmsa-pipeline/BA1.fasta
 
@@ -18,7 +18,7 @@ pc_escape_dir: "dmsa-pipeline/pc_escape_models"
 pc_escape_models: ["CC67.105", "CC9.104", "LyCoV-1404", "NTD_5-7"]
 
 builds:
-  test-global-seq-3:
+  global-ncov-dmsa:
     title: "Build with custom data and example data"
     # TODO: link to configuration guide
     subsampling_scheme: all

@@ -1245,12 +1245,14 @@ rule polyclonal_escape_prediction:
         "logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
         #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
     params:
-        genes = ' '.join(config.get('genes', ['S'])),
-        dms_wt_seq = config.get('dms_wt_seq'),
+        prefix = lambda w: "polyclonal/" if config.g == False else ""
+        dms_wt_seq = config[],
         compare_to = "root",
         attribute_name = "polyclonal_escape_prediction"
+
     conda:
         config["conda_environment"],
+
     resources:
         mem_mb=2000
     shell:
