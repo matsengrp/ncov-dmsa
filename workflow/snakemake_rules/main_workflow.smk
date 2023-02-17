@@ -1223,6 +1223,29 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
+rule variant_escape_fraction_prediction:
+    input:
+        alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
+    output:
+        node_data = "results/{build_name}/escape_fraction_pred.json"
+    log:
+        "logs/variant_escape_fraction_prediction_{build_name}.txt"
+    params:
+        dms_wt_seq = lambda w: config["mutation_escape_fractions"]["wt_seq"],
+        mut_effects_df = lambda w: config["mutation_escape_fractions"]["mut_effects_df"],
+    conda:
+        config["conda_environment"],
+    resources:
+        mem_mb=2000
+    shell:
+        """
+        python3 scripts/escape_frac_predict.py \
+            --alignment {input.alignments} \
+            --mut-effects-df {params.mut_effects_df} \
+            --dms-wt-seq {params.dms_wt_seq} \
+            --output {output.node_data} 2>&1 | tee {log}
+        """
+
 rule polyclonal_escape_prediction:
     input:
         alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
@@ -1408,6 +1431,13 @@ def _get_node_data_by_wildcards(wildcards):
             rules.polyclonal_escape_prediction.output.node_data, 
             build_name=list(config["builds"].keys()),
             antibody=list(config["polyclonal_antibody_models"])
+        ))
+
+    
+    if "mutation_escape_fractions" in config:
+        inputs += list(expand(
+            rules.variant_escape_fraction_prediction.output.node_data,
+            build_name=list(config["builds"].keys())
         ))
 
     return inputs
