@@ -1,0 +1,3 @@
+[submodule "dmsa_pred"]
+	path = my_profiles/dmsa_pred
+	url = git@github.com:matsengrp/dmsa_pred.git

@@ -1223,26 +1223,27 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
-rule variant_escape_fraction_prediction:
+rule escape_fraction_prediction:
     input:
         alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/escape_fraction_pred.json"
+        node_data = "results/{build_name}/{experiment}_escape_fraction_prediction.json"
     log:
-        "logs/variant_escape_fraction_prediction_{build_name}.txt"
+        "logs/{build_name}/{experiment}_escape_fraction_prediction.txt"
     params:
-        dms_wt_seq = lambda w: config["mutation_escape_fractions"]["wt_seq"],
-        mut_effects_df = lambda w: config["mutation_escape_fractions"]["mut_effects_df"],
+        dms_wt_seq = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["wt_seq"],
+        mut_effects_df = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effects_df"],
     conda:
-        config["conda_environment"],
+        "../../my_profiles/dmsa_pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python3 scripts/escape_frac_predict.py \
+        python my_profiles/dmsa_pred/dmsa_pred.py escape-fraction \
             --alignment {input.alignments} \
             --mut-effects-df {params.mut_effects_df} \
-            --dms-wt-seq {params.dms_wt_seq} \
+            --dms-wt-seq-id {params.dms_wt_seq} \
+            --experiment-label {wildcards.experiment} \
             --output {output.node_data} 2>&1 | tee {log}
         """
 
@@ -1250,27 +1251,27 @@ rule polyclonal_escape_prediction:
     input:
         alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/{antibody}/escape_pred.json"
+        node_data = "results/{build_name}/{serum}_polclonal_escape_prediction.json"
     log:
-        "logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
+        "logs/{build_name}/{serum}_polclonal_escape_prediction.txt"
     params:
-        dms_wt_seq = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["wt_seq"],
-        activity_wt_df = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["activity_wt_df"],
-        mut_escape_df = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["mut_escape_df"],
-        concentrations = lambda w: config["polyclonal_antibody_models"][f"{w.antibody}"]["concentrations"]
+        dms_wt_seq = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["wt_seq"],
+        activity_wt_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["activity_wt_df"],
+        mut_escape_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_escape_df"],
+        concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"]
     conda:
-        config["conda_environment"],
+        "../../my_profiles/dmsa_pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python3 scripts/polyclonal_predict.py \
-            --alignment {input.alignments} \
-            --mut-escape-df {params.mut_escape_df} \
+        python my_profiles/dmsa_pred/dmsa_pred.py polyclonal-escape \
             --activity-wt-df {params.activity_wt_df} \
-            --dms-wt-seq {params.dms_wt_seq} \
-            --antibody {wildcards.antibody} \
-            --concentrations-list {params.concentrations} \
+            --concentrations {params.concentrations} \
+            --alignment {input.alignments} \
+            --mut-effects-df {params.mut_escape_df} \
+            --dms-wt-seq-id {params.dms_wt_seq} \
+            --experiment-label {wildcards.serum} \
             --output {output.node_data} 2>&1 | tee {log}
         """
 
@@ -1425,19 +1426,18 @@ def _get_node_data_by_wildcards(wildcards):
     # Convert input files from wildcard strings to real file names.
     inputs = [input_file.format(**wildcards_dict) for input_file in inputs]
 
-    
-    if "polyclonal_antibody_models" in config:
+    if "polyclonal_serum_models" in config:
         inputs += list(expand(
             rules.polyclonal_escape_prediction.output.node_data, 
             build_name=list(config["builds"].keys()),
-            antibody=list(config["polyclonal_antibody_models"])
+            serum=list(config["polyclonal_serum_models"])
         ))
 
-    
-    if "mutation_escape_fractions" in config:
+    if "escape_fraction_models" in config:
         inputs += list(expand(
-            rules.variant_escape_fraction_prediction.output.node_data,
-            build_name=list(config["builds"].keys())
+            rules.escape_fraction_prediction.output.node_data,
+            build_name=list(config["builds"].keys()),
+            experiment=list(config["escape_fraction_models"])
         ))
 
     return inputs
@@ -1487,6 +1487,7 @@ rule export:
         tree = rules.refine.output.tree,
         metadata="results/{build_name}/metadata_adjusted.tsv.xz",
         node_data = _get_node_data_by_wildcards,
+        #dms_node_data = _get_dms_node_data,
         auspice_config = get_auspice_config,
         colors = lambda w: config["builds"][w.build_name]["colors"] if "colors" in config["builds"].get(w.build_name, {}) else ( config["files"]["colors"] if "colors" in config["files"] else rules.colors.output.colors.format(**w) ),
         lat_longs = config["files"]["lat_longs"],
@@ -1499,7 +1500,8 @@ rule export:
     benchmark:
         "benchmarks/export_{build_name}.txt"
     params:
-        title = export_title
+        title = export_title,
+        #node_data = input.node_data + input.dms_node_data
     resources:
         # Memory use scales primarily with the size of the metadata file.
         mem_mb=12000
