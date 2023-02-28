@@ -1223,38 +1223,6 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
-<<<<<<< HEAD
-rule polyclonal_escape_prediction:
-    input:
-        # tree = "results/{build_name}/tree.nwk",
-        # alignments = lambda w: rules.translate.output.translations,
-        alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
-        # distance_map = config["files"]["polyclonal_escape_prediction_distance_map"]
-        # mut_escape_df = config["files"]["mut_escape_df"],
-        # activity_wt_df = config["files"]["activity_wt_df"],
-        #activity_wt_df = "{pc_escape_dir}/{{antibody}}/activity_wt_df.csv".format(pc_escape_dir=config["pc_escape_dir"]),
-        #mut_escape_df = "{pc_escape_dir}/{{antibody}}/mut_escape_df.csv".format(pc_escape_dir=config["pc_escape_dir"]) 
-        activity_wt_df =  "dmsa-pipeline/pc_escape_models/{antibody}/activity_wt_df.csv",
-        mut_escape_df =  "dmsa-pipeline/pc_escape_models/{antibody}/mut_escape_df.csv"
-        #dms_wt_seq = config["dms_wt_seq"]
-    output:
-        node_data = "results/{build_name}/{antibody}/escape_pred.json"
-        #node_data = "results/{build_name}/polyclonal_escape_pred.json"
-    #benchmark:
-    #    "benchmarks/polyclonal_escape_prediction_{build_name}.txt"
-    log:
-        "logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
-        #"logs/polyclonal_escape_prediction_{build_name}_{antibody}.txt"
-    params:
-        prefix = lambda w: "polyclonal/" if config.g == False else ""
-        dms_wt_seq = config[],
-        compare_to = "root",
-        attribute_name = "polyclonal_escape_prediction"
-
-    conda:
-        config["conda_environment"],
-
-=======
 rule escape_fraction_prediction:
     input:
         alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
@@ -1266,12 +1234,12 @@ rule escape_fraction_prediction:
         dms_wt_seq = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["wt_seq"],
         mut_effects_df = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effects_df"],
     conda:
-        "../../my_profiles/dmsa_pred/dmsa_env.yaml"
+        "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python my_profiles/dmsa_pred/dmsa_pred.py escape-fraction \
+        python my_profiles/dmsa-pred/dmsa_pred.py escape-fraction \
             --alignment {input.alignments} \
             --mut-effects-df {params.mut_effects_df} \
             --dms-wt-seq-id {params.dms_wt_seq} \
@@ -1292,12 +1260,12 @@ rule polyclonal_escape_prediction:
         mut_escape_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_escape_df"],
         concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"]
     conda:
-        "../../my_profiles/dmsa_pred/dmsa_env.yaml"
+        "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python my_profiles/dmsa_pred/dmsa_pred.py polyclonal-escape \
+        python my_profiles/dmsa-pred/dmsa_pred.py polyclonal-escape \
             --activity-wt-df {params.activity_wt_df} \
             --concentrations {params.concentrations} \
             --alignment {input.alignments} \
