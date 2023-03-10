@@ -1225,14 +1225,18 @@ rule logistic_growth:
 
 rule escape_fraction_prediction:
     input:
-        alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
+        alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/{experiment}_escape_fraction_prediction.json"
+        node_data = "results/{build_name}/{experiment}_escape_fraction_prediction.json",
+        pred_data = "results/{build_name}/{experiment}_escape_fraction_prediction.csv"
     log:
         "logs/{build_name}/{experiment}_escape_fraction_prediction.txt"
     params:
-        dms_wt_seq = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["wt_seq"],
+        dms_wt_seq_id = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["dms_wt_seq_id"],
         mut_effects_df = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effects_df"],
+        mut_effect_col = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effect_col"],
+        site_col = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["site_col"],
+        condition = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["condition"],
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
@@ -1240,24 +1244,30 @@ rule escape_fraction_prediction:
     shell:
         """
         python my_profiles/dmsa-pred/dmsa_pred.py escape-fraction \
-            --alignment {input.alignments} \
+            --alignment {input.alignment} \
+            --dms-wt-seq-id {params.dms_wt_seq_id} \
             --mut-effects-df {params.mut_effects_df} \
-            --dms-wt-seq-id {params.dms_wt_seq} \
+            --mut-effect-col {params.mut_effect_col} \
+            --site-col {params.site_col} \
+            --condition "{params.condition}" \
             --experiment-label {wildcards.experiment} \
-            --output {output.node_data} 2>&1 | tee {log}
+            --output-json {output.node_data} \
+            --output-df {output.pred_data} 2>&1 | tee {log}
         """
 
 rule polyclonal_escape_prediction:
     input:
-        alignments = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
+        alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/{serum}_polclonal_escape_prediction.json"
+        node_data = "results/{build_name}/{serum}_polclonal_escape_prediction.json",
+        pred_data = "results/{build_name}/{serum}_escape_fraction_prediction.csv"
     log:
         "logs/{build_name}/{serum}_polclonal_escape_prediction.txt"
     params:
-        dms_wt_seq = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["wt_seq"],
+        dms_wt_seq_id = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["dms_wt_seq_id"],
+        mut_effects_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effects_df"],
+        mut_effect_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effect_col"],
         activity_wt_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["activity_wt_df"],
-        mut_escape_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_escape_df"],
         concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"]
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
@@ -1266,13 +1276,15 @@ rule polyclonal_escape_prediction:
     shell:
         """
         python my_profiles/dmsa-pred/dmsa_pred.py polyclonal-escape \
+            --alignment {input.alignment} \
+            --dms-wt-seq-id {params.dms_wt_seq_id} \
+            --mut-effects-df {params.mut_effects_df} \
+            --mut-effect-col {params.mut_effect_col} \
             --activity-wt-df {params.activity_wt_df} \
             --concentrations {params.concentrations} \
-            --alignment {input.alignments} \
-            --mut-effects-df {params.mut_escape_df} \
-            --dms-wt-seq-id {params.dms_wt_seq} \
             --experiment-label {wildcards.serum} \
-            --output {output.node_data} 2>&1 | tee {log}
+            --output-json {output.node_data} \
+            --output-df {output.pred_data} 2>&1 | tee {log}
         """
 
 rule mutational_fitness:

@@ -1,41 +1,78 @@
 inputs:
   - name: reference
-    metadata: https://data.nextstrain.org/files/ncov/open/reference/metadata.tsv.xz
-    sequences: https://data.nextstrain.org/files/ncov/open/reference/sequences.fasta.xz
-  - name: ON641975_1
-    metadata: my_profiles/polyclonal-data/ON641975_1_meta.tsv
-    sequences: my_profiles/polyclonal-data/ON641975_1.fasta
+    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: custom
+    metadata: my_profiles/custom_metadata.tsv
+    sequences: my_profiles/custom_sequences.fasta
 
 # GenBank data includes "Wuhan-Hu-1/2019" which we use as the root for this build.
 refine:
   root: "Wuhan-Hu-1/2019"
 
 escape_fraction_models:
-  rbd-wuhan-hu:
-    wt_seq: "Wuhan-Hu-1/2019" 
-    mut_effects_df: "my_profiles/escape-frac-data/rbd_mini_binder.csv"
+  LyCov1404-BA1:
+    dms_wt_seq_id: "ON641975.1" 
+    mut_effects_df: "my_profiles/escape-frac-data/Starr_LY-CoV1404_BA1_raw_data.csv"
+    mut_effect_col: "mut_escape"
+    site_col: "site"
+    condition: "LY-CoV1404 - BA1"
+  268C.3-BA1:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA1_raw_data.csv"
+    mut_effect_col: "mut_escape"
+    site_col: "site"
+    condition: "268C.3 - BA1"
+  268C.3-BA2:
+    dms_wt_seq_id: "ON395492.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA2_raw_data.csv"
+    mut_effect_col: "mut_escape"
+    site_col: "site"
+    condition: "268C.3 - BA2"
+  268C.61-BA2:
+    dms_wt_seq_id: "ON395492.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA2_raw_data.csv"
+    mut_effect_col: "mut_escape"
+    site_col: "site"
+    condition: "268C.61 - BA2"
+  LCB1_v2.2_9-WH1:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019" 
+    mut_effects_df: "my_profiles/escape-frac-data/Starr_LCB1_v2.2_9.csv"
+    mut_effect_col: "mut_escape_frac_epistasis_model"
+    site_col: "protein_site"
+    condition: "LCB1_v2.2_9"
 
 polyclonal_serum_models:
   CC67.105:
-    wt_seq: "ON641975.1" # must esist in the input sequences. all aamuts in prediction are relative to this
+    dms_wt_seq_id: "ON641975.1" # must esist in the input sequences. all aamuts in prediction are relative to this
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
     activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/activity_wt_df.csv"
-    mut_escape_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/mut_escape_df.csv"
     concentrations: "210.0,10.0" # must be a tab-delim list .. TODO is this the best way?
   CC9.104:
-    wt_seq: "ON641975.1"
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
     activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/activity_wt_df.csv"
-    mut_escape_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/mut_escape_df.csv"
     concentrations: "272.0"
   LyCoV-1404:
-    wt_seq: "ON641975.1"
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/LyCoV-1404/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
     activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/LyCoV-1404/activity_wt_df.csv"
-    mut_escape_df: "my_profiles/polyclonal-data/pc_escape_models/LyCoV-1404/mut_escape_df.csv"
     concentrations: "2.6"
   NTD_5-7:
-    wt_seq: "ON641975.1"
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
     activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/activity_wt_df.csv"
-    mut_escape_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/mut_escape_df.csv"
     concentrations: "150.0"
+  C68.59:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/C68.59/C68.59_avg.csv"
+    mut_effect_col: "escape_median"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/C68.59/activity_wt_df.csv"
+    concentrations: "20.2,80.8"
 
 builds:
   reference-pc-ef-03-23-23-t1:
