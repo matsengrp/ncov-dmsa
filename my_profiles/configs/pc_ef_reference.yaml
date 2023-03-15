@@ -1,7 +1,7 @@
 inputs:
   - name: reference
-    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
-    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+    metadata: https://data.nextstrain.org/files/ncov/open/reference/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/reference/sequences.fasta.xz
   - name: custom
     metadata: my_profiles/custom_metadata.tsv
     sequences: my_profiles/custom_sequences.fasta
@@ -117,7 +117,7 @@ polyclonal_serum_models:
     concentrations: "80.8"
 
 builds:
-  reference-pc-ef-03-23-23-t1:
+  03-14-23-strip-aa-sub-t2:
     title: "Build with custom data and example data"
     # TODO: link to configuration guide
     subsampling_scheme: all

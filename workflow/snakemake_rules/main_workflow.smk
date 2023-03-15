@@ -1223,6 +1223,29 @@ rule logistic_growth:
             --output {output.node_data} 2>&1 | tee {log}
         """
 
+#rule call_dms_aa_subs:
+#    input:
+#        alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
+#    output:
+#        strain_dms_subs_df = "results/{build_name}/strain_dms_subs_wrt_{wt_id}.csv",
+#        strain_dms_subs_json = "results/{build_name}/strain_dms_subs_wrt_{wt_id}.json"
+#    log:
+#        "logs/{build_name}/calling_{wt_id}_subs"
+#    #params:
+#        #dms_wt_seq_id = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["dms_wt_seq_id"],
+#    conda:
+#        "../../my_profiles/dmsa-pred/dmsa_env.yaml"
+#    resources:
+#        mem_mb=2000
+#    shell:
+#        """
+#        python my_profiles/dmsa-pred/dmsa_pred.py call-mutations \
+#            --alignment {input.alignment} \
+#            --dms-wt-seq-id {wildcards.wt_id} \
+#            --output-json {output.strain_dms_subs_json} \
+#            --output-df {output.strain_dms_subs_df} 2>&1 | tee {log}
+#        """
+
 rule escape_fraction_prediction:
     input:
         alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
@@ -1438,19 +1461,43 @@ def _get_node_data_by_wildcards(wildcards):
     # Convert input files from wildcard strings to real file names.
     inputs = [input_file.format(**wildcards_dict) for input_file in inputs]
 
+    # we should probably change the config to put wt above model in the hierarchy
+    # then we just need to find a way to provide the wildcards to a single dms_pred
+    # call with the subcommand and kwargs ... to be figured out.
     if "polyclonal_serum_models" in config:
         inputs += list(expand(
             rules.polyclonal_escape_prediction.output.node_data, 
             build_name=list(config["builds"].keys()),
             serum=list(config["polyclonal_serum_models"])
         ))
+        
+        #uniq_dms_wt = set([
+        #    model_params["dms_wt_seq_id"] for model, model_params in config["polyclonal_serum_models"].items()
+        #])
+        #print(uniq_dms_wt)
+        #inputs += list(expand(
+        #    rules.call_dms_aa_subs.output.strain_dms_subs_json,
+        #    build_name=list(config["builds"].keys()),
+        #    wt_id = list(uniq_dms_wt)
+        #))
 
     if "escape_fraction_models" in config:
         inputs += list(expand(
             rules.escape_fraction_prediction.output.node_data,
             build_name=list(config["builds"].keys()),
+            # could make this the list of wt-model pairs for each model
             experiment=list(config["escape_fraction_models"])
         ))
+        
+        #uniq_dms_wt = set([
+        #    model_params["dms_wt_seq_id"] for model, model_params in config["escape_fraction_models"].items()
+        #])
+        #
+        #inputs += list(expand(
+        #    rules.call_dms_aa_subs.output.strain_dms_subs_json,
+        #    build_name=list(config["builds"].keys()),
+        #    wt_id = list(uniq_dms_wt)
+        #))
 
     return inputs
 
@@ -1478,6 +1525,26 @@ rule build_description:
 
         with open(output.description, "w", encoding = "utf-8") as o:
             o.write(template.safe_substitute(context))
+
+
+rule auspice_config:
+    message: "Getting auspice config for modification"
+    input: 
+        default_auspice_config = config["files"]["auspice_config"] 
+    output: 
+        "results/{build_name}/dmsa_modified_auspice_config.json"
+    params:
+        path_config = workflow.overwrite_configfiles[0]
+    conda:
+        config["conda_environment"],
+    shell:
+        """
+        python my_profiles/dmsa-pred/modify_auspice_config.py \
+            --auspice-config-path {input.default_auspice_config} \
+            --snake-config-path {params.path_config} \
+            --output-config-path {output}
+        """
+
 
 def get_auspice_config(w):
     """
