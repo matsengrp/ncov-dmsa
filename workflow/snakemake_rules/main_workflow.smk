@@ -1291,7 +1291,8 @@ rule polyclonal_escape_prediction:
         mut_effects_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effects_df"],
         mut_effect_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effect_col"],
         activity_wt_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["activity_wt_df"],
-        concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"]
+        concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"] if "concentrations" in config["polyclonal_serum_models"][f"{w.serum}"] else "0.0",
+        icxx = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["icxx"] if "icxx" in config["polyclonal_serum_models"][f"{w.serum}"] else 0.0
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
@@ -1305,6 +1306,7 @@ rule polyclonal_escape_prediction:
             --mut-effect-col {params.mut_effect_col} \
             --activity-wt-df {params.activity_wt_df} \
             --concentrations {params.concentrations} \
+            --icxx {params.icxx} \
             --experiment-label {wildcards.serum} \
             --output-json {output.node_data} \
             --output-df {output.pred_data} 2>&1 | tee {log}
@@ -1452,7 +1454,7 @@ def _get_node_data_by_wildcards(wildcards):
         rules.mutational_fitness.output.node_data,
         rules.distances.output.node_data,
         rules.calculate_epiweeks.output.node_data,
-        rules.assign_rbd_levels.output.node_data,
+        rules.assign_rbd_levels.output.node_data
     ]
 
     if "run_pangolin" in config and config["run_pangolin"]:
