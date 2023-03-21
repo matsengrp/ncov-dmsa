@@ -1232,7 +1232,7 @@ rule logistic_growth:
 #    log:
 #        "logs/{build_name}/calling_{wt_id}_subs"
 #    #params:
-#        #dms_wt_seq_id = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["dms_wt_seq_id"],
+#        #dms_wt_seq_id = lambda w: config["escape_models"][f"{w.experiment}"]["dms_wt_seq_id"],
 #    conda:
 #        "../../my_profiles/dmsa-pred/dmsa_env.yaml"
 #    resources:
@@ -1246,50 +1246,54 @@ rule logistic_growth:
 #            --output-df {output.strain_dms_subs_df} 2>&1 | tee {log}
 #        """
 
-rule escape_fraction_prediction:
+rule variant_escape_prediction:
     input:
         alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/{experiment}_escape_fraction_prediction.json",
-        pred_data = "results/{build_name}/{experiment}_escape_fraction_prediction.csv"
+        node_data = "results/{build_name}/{experiment}_variant_escape_prediction.json",
+        pred_data = "results/{build_name}/{experiment}_variant_escape_prediction.csv"
     log:
-        "logs/{build_name}/{experiment}_escape_fraction_prediction.txt"
+        "logs/{build_name}/{experiment}_variant_escape_prediction.txt"
     params:
-        dms_wt_seq_id = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["dms_wt_seq_id"],
-        mut_effects_df = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effects_df"],
-        mut_effect_col = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["mut_effect_col"],
-        site_col = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["site_col"],
-        condition = lambda w: config["escape_fraction_models"][f"{w.experiment}"]["condition"],
+        dms_wt_seq_id = lambda w: config["escape_models"][f"{w.experiment}"]["dms_wt_seq_id"],
+        mut_effects_df = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effects_df"],
+        mut_effect_col = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effect_col"],
+        mutation_col = lambda w: config["escape_models"][f"{w.experiment}"]["mutation_col"],
+        # site_col = lambda w: config["escape_models"][f"{w.experiment}"]["site_col"],
+        # condition = lambda w: config["escape_models"][f"{w.experiment}"]["condition"],
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python my_profiles/dmsa-pred/dmsa_pred.py escape-fraction \
+        python my_profiles/dmsa-pred/dmsa_pred.py escape-prediction \
+            --model-type additive \
             --alignment {input.alignment} \
             --dms-wt-seq-id {params.dms_wt_seq_id} \
             --mut-effects-df {params.mut_effects_df} \
             --mut-effect-col {params.mut_effect_col} \
-            --site-col {params.site_col} \
-            --condition "{params.condition}" \
+            --mutation-col {params.mutation_col} \
             --experiment-label {wildcards.experiment} \
             --output-json {output.node_data} \
             --output-df {output.pred_data} 2>&1 | tee {log}
         """
+#--site-col {params.site_col} \
+# --condition "{params.condition}" \
 
 rule polyclonal_escape_prediction:
     input:
         alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
         node_data = "results/{build_name}/{serum}_polclonal_escape_prediction.json",
-        pred_data = "results/{build_name}/{serum}_escape_fraction_prediction.csv"
+        pred_data = "results/{build_name}/{serum}_polclonal_escape_prediction.csv"
     log:
         "logs/{build_name}/{serum}_polclonal_escape_prediction.txt"
     params:
         dms_wt_seq_id = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["dms_wt_seq_id"],
         mut_effects_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effects_df"],
         mut_effect_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effect_col"],
+        mutation_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mutation_col"],
         activity_wt_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["activity_wt_df"],
         concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"] if "concentrations" in config["polyclonal_serum_models"][f"{w.serum}"] else "0.0",
         icxx = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["icxx"] if "icxx" in config["polyclonal_serum_models"][f"{w.serum}"] else 0.0
@@ -1304,6 +1308,7 @@ rule polyclonal_escape_prediction:
             --dms-wt-seq-id {params.dms_wt_seq_id} \
             --mut-effects-df {params.mut_effects_df} \
             --mut-effect-col {params.mut_effect_col} \
+            --mutation-col {params.mutation_col} \
             --activity-wt-df {params.activity_wt_df} \
             --concentrations {params.concentrations} \
             --icxx {params.icxx} \
@@ -1483,16 +1488,16 @@ def _get_node_data_by_wildcards(wildcards):
         #    wt_id = list(uniq_dms_wt)
         #))
 
-    if "escape_fraction_models" in config:
+    if "escape_models" in config:
         inputs += list(expand(
-            rules.escape_fraction_prediction.output.node_data,
+            rules.variant_escape_prediction.output.node_data,
             build_name=list(config["builds"].keys()),
             # could make this the list of wt-model pairs for each model
-            experiment=list(config["escape_fraction_models"])
+            experiment=list(config["escape_models"])
         ))
         
         #uniq_dms_wt = set([
-        #    model_params["dms_wt_seq_id"] for model, model_params in config["escape_fraction_models"].items()
+        #    model_params["dms_wt_seq_id"] for model, model_params in config["escape_models"].items()
         #])
         #
         #inputs += list(expand(
