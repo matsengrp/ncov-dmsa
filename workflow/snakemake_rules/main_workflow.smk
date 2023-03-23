@@ -1259,15 +1259,13 @@ rule variant_escape_prediction:
         mut_effects_df = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effects_df"],
         mut_effect_col = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effect_col"],
         mutation_col = lambda w: config["escape_models"][f"{w.experiment}"]["mutation_col"],
-        # site_col = lambda w: config["escape_models"][f"{w.experiment}"]["site_col"],
-        # condition = lambda w: config["escape_models"][f"{w.experiment}"]["condition"],
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
         mem_mb=2000
     shell:
         """
-        python my_profiles/dmsa-pred/dmsa_pred.py escape-prediction \
+        python my_profiles/dmsa-pred/dmsa_pred.py phenotype-prediction \
             --model-type additive \
             --alignment {input.alignment} \
             --dms-wt-seq-id {params.dms_wt_seq_id} \
