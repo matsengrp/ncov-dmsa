@@ -1,0 +1,82 @@
+inputs:
+  - name: global
+    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: custom
+    metadata: my_profiles/custom_metadata.tsv
+    sequences: my_profiles/custom_sequences.fasta
+
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+escape_models:
+  C68.3-BA1_escape_score:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA1_raw_data_268C.3-BA1.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  C68.3-BA2_escape_score:
+    dms_wt_seq_id: "ON395492.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA2_raw_data_268C.3-BA2.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  C68.61-BA2_escape_score:
+    dms_wt_seq_id: "ON395492.1"
+    mut_effects_df: "my_profiles/escape-frac-data/Guenthoer_all_mAbs_BA2_raw_data_268C.61-BA2.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  # LCB1_v2.2_sensitive-WH1_escape_score:
+  #   dms_wt_seq_id: "Wuhan-Hu-1/2019" 
+  #   mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_LCB1_v2.2sensitive.csv"
+  #   mut_effect_col: "mut_escape"
+  #   mutation_col: "aa_sub"
+  LCB1_v2.2_stringent-WH1_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019"
+    mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_LCB1_v2.2stringent.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  # AHB2_sensitive-WH1_escape_score:
+  #   dms_wt_seq_id: "Wuhan-Hu-1/2019"
+  #   mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_AHB2sensitive.csv"
+  #   mut_effect_col: "mut_escape"
+  #   mutation_col: "aa_sub"
+
+polyclonal_serum_models:
+  CC67.105:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/activity_wt_df.csv"
+    # concentrations: "210.0,10.0"
+    icxx: 0.9
+  CC9.104:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/activity_wt_df.csv"
+    # concentrations: "272.0"
+    icxx: 0.9
+  NTD_5-7:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/activity_wt_df.csv"
+    # concentrations: "150.0"
+    icxx: 0.9
+  C68.59:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/C68.59/C68.59_avg.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/C68.59/activity_wt_df.csv"
+    # concentrations: "80.8"
+    icxx: 0.9
+
+builds:
+  unescaped-antibodies:
+    title: "SARS-CoV-2 phylogeny with estimated escape from monoclonal antibodies with appreciable activity."
+    subsampling_scheme: all
+    description: my_profiles/dmsa-pred/description.md

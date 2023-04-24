@@ -1,0 +1,51 @@
+inputs:
+  - name: global
+    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: custom
+    metadata: my_profiles/custom_metadata.tsv
+    sequences: my_profiles/custom_sequences.fasta
+
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+
+polyclonal_serum_models:
+  CC67.105:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC67.105/activity_wt_df.csv"
+    # concentrations: "210.0,10.0"
+    icxx: 0.9
+  CC9.104:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/CC9.104/activity_wt_df.csv"
+    # concentrations: "272.0"
+    icxx: 0.9
+  LY-CoV1404:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/LyCoV-1404/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/LyCoV-1404/activity_wt_df.csv"
+    # concentrations: "2.6"
+    icxx: 0.9
+  NTD_5-7:
+    dms_wt_seq_id: "ON641975.1"
+    mut_effects_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/mut_escape_df.csv"
+    mut_effect_col: "escape_median"
+    mutation_col: "mutation"
+    activity_wt_df: "my_profiles/polyclonal-data/pc_escape_models/NTD_5-7/activity_wt_df.csv"
+    # concentrations: "150.0"
+    icxx: 0.9
+
+builds:
+  Dadonaite-2023-Cell:
+    title: "SARS-CoV-2 phylogeny with estimated escape from the monoclonal antibodies described in Dadonaite et al., 2023, Cell."
+    subsampling_scheme: all
+    description: my_profiles/dmsa-pred/description.md

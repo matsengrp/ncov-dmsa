@@ -1,0 +1,33 @@
+inputs:
+  - name: global
+    metadata: https://data.nextstrain.org/files/ncov/open/global/metadata.tsv.xz
+    sequences: https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
+  - name: custom
+    metadata: my_profiles/custom_metadata.tsv
+    sequences: my_profiles/custom_sequences.fasta
+
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+escape_models:
+  LCB1_v2.2_sensitive-WH1_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019" 
+    mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_LCB1_v2.2sensitive.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  LCB1_v2.2_stringent-WH1_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019"
+    mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_LCB1_v2.2stringent.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+  AHB2_sensitive-WH1_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019"
+    mut_effects_df: "my_profiles/escape-frac-data/Hunt_IPD_ligands_raw_data_AHB2sensitive.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_sub"
+
+builds:
+  Hunt-2022-SciTranslMed:
+    title: "SARS-CoV-2 phylogeny with estimated escape from the monoclonal antibodies described in Hunt, 2022, Science Translational Medicine."
+    subsampling_scheme: all
+    description: my_profiles/dmsa-pred/description.md
