@@ -1259,6 +1259,10 @@ rule variant_escape_prediction:
         mut_effects_df = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effects_df"],
         mut_effect_col = lambda w: config["escape_models"][f"{w.experiment}"]["mut_effect_col"],
         mutation_col = lambda w: config["escape_models"][f"{w.experiment}"]["mutation_col"],
+        allow_aa_subs_at_unmeasured_sites = lambda w: config["escape_models"][f"{w.experiment}"]["allow_aa_subs_at_unmeasured_sites"],
+        allow_unmeasured_aa_subs_at_these_sites = lambda w: config["escape_models"][f"{w.experiment}"]["allow_unmeasured_aa_subs_at_these_sites"],
+        min_pred_pheno = lambda w: config["escape_models"][f"{w.experiment}"]["min_pred_pheno"],
+        max_pred_pheno = lambda w: config["escape_models"][f"{w.experiment}"]["max_pred_pheno"],
     conda:
         "../../my_profiles/dmsa-pred/dmsa_env.yaml"
     resources:
@@ -1272,6 +1276,10 @@ rule variant_escape_prediction:
             --mut-effects-df {params.mut_effects_df} \
             --mut-effect-col {params.mut_effect_col} \
             --mutation-col {params.mutation_col} \
+            --allow-aa-subs-at-unmeasured-sites {params.allow_aa_subs_at_unmeasured_sites} \
+            --allow-unmeasured-aa-subs-at-these-sites {params.allow_unmeasured_aa_subs_at_these_sites} \
+            --min-pred-pheno {params.min_pred_pheno} \
+            --max-pred-pheno {params.max_pred_pheno} \
             --experiment-label {wildcards.experiment} \
             --output-json {output.node_data} \
             --output-df {output.pred_data} 2>&1 | tee {log}
@@ -1283,15 +1291,19 @@ rule polyclonal_escape_prediction:
     input:
         alignment = "results/{build_name}/translations/aligned.gene.S_withInternalNodes.fasta",
     output:
-        node_data = "results/{build_name}/{serum}_polclonal_escape_prediction.json",
-        pred_data = "results/{build_name}/{serum}_polclonal_escape_prediction.csv"
+        node_data = "results/{build_name}/{serum}_polyclonal_escape_prediction.json",
+        pred_data = "results/{build_name}/{serum}_polyclonal_escape_prediction.csv"
     log:
-        "logs/{build_name}/{serum}_polclonal_escape_prediction.txt"
+        "logs/{build_name}/{serum}_polyclonal_escape_prediction.txt"
     params:
         dms_wt_seq_id = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["dms_wt_seq_id"],
         mut_effects_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effects_df"],
         mut_effect_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mut_effect_col"],
         mutation_col = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["mutation_col"],
+        allow_aa_subs_at_unmeasured_sites = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["allow_aa_subs_at_unmeasured_sites"],
+        allow_unmeasured_aa_subs_at_these_sites = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["allow_unmeasured_aa_subs_at_these_sites"],
+        min_pred_pheno = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["min_pred_pheno"],
+        max_pred_pheno = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["max_pred_pheno"],
         activity_wt_df = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["activity_wt_df"],
         concentrations = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["concentrations"] if "concentrations" in config["polyclonal_serum_models"][f"{w.serum}"] else "0.0",
         icxx = lambda w: config["polyclonal_serum_models"][f"{w.serum}"]["icxx"] if "icxx" in config["polyclonal_serum_models"][f"{w.serum}"] else 0.0
@@ -1307,6 +1319,10 @@ rule polyclonal_escape_prediction:
             --mut-effects-df {params.mut_effects_df} \
             --mut-effect-col {params.mut_effect_col} \
             --mutation-col {params.mutation_col} \
+            --allow-aa-subs-at-unmeasured-sites {params.allow_aa_subs_at_unmeasured_sites} \
+            --allow-unmeasured-aa-subs-at-these-sites {params.allow_unmeasured_aa_subs_at_these_sites} \
+            --min-pred-pheno {params.min_pred_pheno} \
+            --max-pred-pheno {params.max_pred_pheno} \
             --activity-wt-df {params.activity_wt_df} \
             --concentrations {params.concentrations} \
             --icxx {params.icxx} \
@@ -1550,6 +1566,13 @@ rule auspice_config:
             --output-config-path {output}
         """
 
+def rule_exists(name):
+    # Some versions of Snakemake throw a WorkflowError even with the
+    # three-arg getattr(), so catch any error and assume non-existence.
+    try:
+        return bool(getattr(rules, name, None))
+    except:
+        return False
 
 def get_auspice_config(w):
     """
@@ -1560,10 +1583,9 @@ def get_auspice_config(w):
     """
     if "auspice_config" in config["builds"].get(w.build_name, {}):
         return config["builds"][w.build_name]["auspice_config"]
-    if "auspice_config" in rules.__dict__:
+    if rule_exists("auspice_config"):
         return rules.auspice_config.output
     return config["files"]["auspice_config"]
-
 
 rule export:
     message: "Exporting data files for Auspice"
