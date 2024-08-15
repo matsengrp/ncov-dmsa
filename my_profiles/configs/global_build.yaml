@@ -1,0 +1,97 @@
+inputs:
+  - name: 100k
+    metadata: https://data.nextstrain.org/files/ncov/open/100k/metadata.tsv.xz # https://data.nextstrain.org/files/ncov/open/reference/metadata.tsv.xz # 
+    sequences: https://data.nextstrain.org/files/ncov/open/100k/sequences.fasta.xz # https://data.nextstrain.org/files/ncov/open/reference/sequences.fasta.xz # 
+  - name: custom
+    metadata: my_profiles/custom_metadata.tsv
+    sequences: my_profiles/custom_sequences.fasta
+
+refine:
+  root: "Wuhan-Hu-1/2019"
+
+escape_models:
+
+  LY-CoV016_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019"
+    mut_effects_df: "my_profiles/escape-frac-data/Starr_2021_LY-CoV016.csv"
+    mut_effect_col: "mut_escape"
+    mutation_col: "aa_mutation"
+    mask_seqs_with_disallowed_aa_subs: False
+    allow_aa_subs_at_unmeasured_sites: True
+    allow_unmeasured_aa_subs_at_these_sites: "my_profiles/empty.txt"
+    min_pred_pheno: 0
+    max_pred_pheno: 1
+
+  BD56-1797_escape_score:
+    dms_wt_seq_id: "Wuhan-Hu-1/2019"
+    mut_effects_df: "my_profiles/escape-frac-data/BD56-1797_mut_effects.csv"
+    mut_effect_col: "escape"
+    mutation_col: "aa_sub"
+    mask_seqs_with_disallowed_aa_subs: False
+    allow_aa_subs_at_unmeasured_sites: True
+    allow_unmeasured_aa_subs_at_these_sites: "my_profiles/empty.txt"
+    min_pred_pheno: 0
+    max_pred_pheno: 1
+
+builds:
+  global-build:
+    title: "SARS-CoV-2 phylogeny of globally circulating sequences from the first 3.5 years of the pandemic, with per-virus antibody-escape scores estimated by deep mutational scanning"
+    subsampling_scheme: nextstrain_global_time_limited # from https://github.com/nextstrain/ncov/blob/master/nextstrain_profiles/nextstrain-open/builds.yaml
+    #description: my_profiles/dmsa-pred/description.md
+
+subsampling:
+  nextstrain_global_time_limited:
+    africa:
+      max_date: 2023-06-01
+      group_by: "country year month"
+      max_sequences: 750
+      exclude: "--exclude-where 'region!=Africa'"
+    asia:
+      max_date: 2023-06-01
+      group_by: "country year month"
+      max_sequences: 1000
+      exclude: "--exclude-where 'region!=Asia' 'country=China' 'country=India'"
+    china:
+      max_date: 2023-06-01
+      group_by: "division year month"
+      max_sequences: 875
+      exclude: "--exclude-where 'country!=China'"
+    europe:
+      max_date: 2023-06-01
+      group_by: "country year month"
+      max_sequences: 625
+      exclude: "--exclude-where 'region!=Europe'"
+    india:
+      max_date: 2023-06-01
+      group_by: "division year month"
+      max_sequences: 875
+      exclude: "--exclude-where 'country!=India'"
+    north_america:
+      max_date: 2023-06-01
+      group_by: "division year month"
+      max_sequences: 500
+      exclude: "--exclude-where 'region!=North America'"
+    south_america:
+      max_date: 2023-06-01
+      group_by: "country year month"
+      max_sequences: 450
+      exclude: "--exclude-where 'region!=South America'"
+    oceania:
+      max_date: 2023-06-01
+      group_by: "division year month"
+      max_sequences: 75
+      exclude: "--exclude-where 'region!=Oceania'"
+      
+#traits:
+#  escaped-clinically-approved-abs:
+#    sampling_bias_correction: 2.5
+
+frequencies:
+  global-build:
+    min_date: "2020-01-01"
+    max_date: "2023-06-01"
+    narrow_bandwidth: 0.038
+    recent_days_to_censor: 7
+
+files:
+  include: my_profiles/include.txt 
