@@ -197,6 +197,8 @@ def _get_specific_subsampling_setting(setting, optional=False):
                 value = f"--sequences-per-group {value}"
             elif setting == 'max_sequences':
                 value = f"--subsample-max-sequences {value}"
+            elif setting == 'max_date':
+                value = f"--max-date {value}"
 
             return shquotewords(value)
         else:
